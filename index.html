@@ -1,1 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Irindiro Football Club</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        #profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin: 0 auto 10px;
+            display: block;
+            background-color: #ddd; /* Placeholder for image */
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #333;
+            padding: 10px 0;
+        }
+        nav button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        nav button.active {
+            background-color: #0056b3;
+        }
+        section {
+            display: none;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        section.active {
+            display: block;
+        }
+        .category {
+            margin-bottom: 30px;
+        }
+        .category h3 {
+            color: #007bff;
+        }
+        .player-list {
+            list-style: none;
+            padding: 0;
+        }
+        .player-item {
+            background: white;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .registered {
+            color: green;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        #contributions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+        }
+        #contributions-table th, #contributions-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #contributions-table th {
+            background-color: #f2f2f2;
+        }
+        .paid {
+            color: green;
+            font-weight: bold;
+        }
+        #whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img id="profile-pic" src="placeholder-profile.jpg" alt="Club Profile Picture">
+        <h1>Irindiro Football Club</h1>
+    </header>
 
+    <nav>
+        <button onclick="showTab('registration')" class="active">Registration</button>
+        <button onclick="showTab('players')">Players</button>
+        <button onclick="showTab('contributions')">Contributions</button>
+    </nav>
+
+    <section id="registration" class="active">
+        <h2>Player Registration</h2>
+        <form onsubmit="registerPlayer(event)">
+            <input type="text" id="playerName" placeholder="Enter Player Name" required>
+            <input type="number" id="amount" placeholder="Enter Amount (KES)" min="50" required>
+            <button type="submit">Register</button>
+        </form>
+        <p id="regMessage"></p>
+    </section>
+
+    <section id="players">
+        <h2>Players</h2>
+        <div class="category">
+            <h3>Goalkeepers</h3>
+            <ul class="player-list" id="goalkeepers"></ul>
+        </div>
+        <div class="category">
+            <h3>Defenders</h3>
+            <ul class="player-list" id="defenders"></ul>
+        </div>
+        <div class="category">
+            <h3>Midfielders</h3>
+            <ul class="player-list" id="midfielders"></ul>
+        </div>
+        <div class="category">
+            <h3>Forwards</h3>
+            <ul class="player-list" id="forwards"></ul>
+        </div>
+    </section>
+
+    <section id="contributions">
+        <h2>Contributions</h2>
+        <form onsubmit="addContribution(event)">
+            <input type="text" id="contribName" placeholder="Player Name" required>
+            <input type="number" id="contribAmount" placeholder="Contribution Amount (KES)" required>
+            <button type="submit">Add Contribution</button>
+        </form>
+        <table id="contributions-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Contribution</th>
+                    <th>Total</th>
+                    <th>Paid</th>
+                </tr>
+            </thead>
+            <tbody id="contrib-body"></tbody>
+        </table>
+    </section>
+
+    <button id="whatsapp-btn" onclick="joinWhatsApp()" title="Join WhatsApp Group">📱</button>
+
+    <footer>
+        <p>&copy; 2025 Irindiro Football Club. Developed by Colloh.</p>
+    </footer>
+
+    <script>
+        // Data storage using localStorage
+        let registeredPlayers = JSON.parse(localStorage.getItem('registeredPlayers')) || {};
+        let contributions = JSON.parse(localStorage.getItem('contributions')) || [
+            { name: 'LAMAXON MUGURI', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'AMOS KIMATHI', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'DICKSON', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'MWENDA LEWIS', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'IAN NKURIU', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'ROYFORD', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'KIM NKUNKU', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'MUTEMBEI', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'MWENDA', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'MUTHURI COLLINS', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'MURITHI MUMU', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'PIUS', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'EVANS MUTWIRI', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'EZRON MWIRIGI', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'MURITHI', contrib: 0, total: 0, paid: false, paidAmount: 0 },
+            { name: 'LEWIS MUTUA', contrib: 0, total: 0, paid: false, paidAmount: 0 }
+        ];
+
+        const players = {
+            goalkeepers: ['LAMAXON MUGURI', 'AMOS KIMATHI'],
+            defenders: ['DICKSON', 'MWENDA LEWIS', 'IAN NKURIU', 'ROYFORD', 'KIM NKUNKU'],
+            midfielders: ['MUTEMBEI', 'MWENDA', 'MUTHURI COLLINS', 'MURITHI MUMU'],
+            forwards: ['PIUS', 'EVANS MUTWIRI', 'EZRON MWIRIGI', 'MURITHI', 'LEWIS MUTUA']
+        };
+
+        function showTab(tabName) {
+            document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            if (tabName === 'players') renderPlayers();
+            if (tabName === 'contributions') renderContributions();
+        }
+
+        function registerPlayer(event) {
+            event.preventDefault();
+            const name = document.getElementById('playerName').value.trim().toUpperCase();
+            const amount = parseInt(document.getElementById('amount').value);
+            if (amount < 50) {
+                document.getElementById('regMessage').textContent = 'Amount must be KES 50 or above!';
+                return;
+            }
+            registeredPlayers[name] = true;
+            localStorage.setItem('registeredPlayers', JSON.stringify(registeredPlayers));
+            document.getElementById('regMessage').textContent = `${name} registered successfully!`;
+            document.getElementById('playerName').value = '';
+            document.getElementById('amount').value = '';
+            setTimeout(() => document.getElementById('regMessage').textContent = '', 3000);
+        }
+
+        function renderPlayers() {
+            Object.keys(players).forEach(category => {
+                const ul = document.getElementById(category);
+                ul.innerHTML = '';
+                players[category].forEach(name => {
+                    const li = document.createElement('li');
+                    li.className = 'player-item';
+                    li.innerHTML = `
+                        <span>${name}</span>
+                        <span class="${registeredPlayers[name] ? 'registered' : ''}">✓</span>
+                    `;
+                    ul.appendChild(li);
+                });
+            });
+        }
+
+        function addContribution(event) {
+            event.preventDefault();
+            const name = document.getElementById('contribName').value.trim().toUpperCase();
+            const amount = parseInt(document.getElementById('contribAmount').value);
+            let contrib = contributions.find(c => c.name === name);
+            if (!contrib) {
+                contrib = { name, contrib: 0, total: 0, paid: false, paidAmount: 0 };
+                contributions.push(contrib);
+            }
+            contrib.contrib += amount;
+            contrib.total += amount;
+            contrib.paid = true;
+            contrib.paidAmount = amount;
+            localStorage.setItem('contributions', JSON.stringify(contributions));
+            document.getElementById('contribName').value = '';
+            document.getElementById('contribAmount').value = '';
+            renderContributions();
+        }
+
+        function renderContributions() {
+            const tbody = document.getElementById('contrib-body');
+            tbody.innerHTML = '';
+            contributions.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.name}</td>
+                    <td>${c.contrib}</td>
+                    <td>${c.total}</td>
+                    <td class="${c.paid ? 'paid' : ''}">${c.paid ? `KES ${c.paidAmount}` : 'No'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function joinWhatsApp() {
+            // Replace with actual WhatsApp group invite link
+            window.open('https://chat.whatsapp.com/Foof1HTeEWBBJJCU6nSVEM', '_blank');
+        }
+
+        // Initial render
+        renderPlayers();
+        renderContributions();
+    </script>
+</body>
+</html>

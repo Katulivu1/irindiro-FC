@@ -14,6 +14,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      overflow-x: hidden; /* 🚫 Prevents shaking */
     }
 
     header {
@@ -68,15 +69,16 @@
       flex-wrap: wrap;
       background: #222;
       padding: 10px 5px;
+      gap: 6px; /* Keeps spacing even */
     }
     nav button {
       flex: 1;
-      min-width: 100px;
+      max-width: 180px; /* 🚫 Prevents over-expansion */
       background: #0052d4;
       color: white;
       border: none;
       padding: 10px 12px;
-      margin: 5px;
+      margin: 2px 0;
       cursor: pointer;
       border-radius: 20px;
       font-size: 14px;
@@ -94,11 +96,13 @@
     section {
       display: none;
       padding: 15px;
-      max-width: 850px;
+      max-width: 900px; /* 🚫 Locks frame size */
+      width: 95%;       /* ✅ Responsive on mobile */
       margin: 15px auto;
       background: #fff;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-sizing: border-box;
     }
     section.active {
       display: block;
@@ -119,6 +123,8 @@
       border-radius: 8px;
       margin-bottom: 15px;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+      width: 100%;
+      box-sizing: border-box;
     }
 
     input, button {
@@ -163,6 +169,8 @@
       border-radius: 8px;
       overflow: hidden;
       font-size: 14px;
+      table-layout: fixed; /* 🚫 Prevents table jumping */
+      word-wrap: break-word;
     }
     #contributions-table th, #contributions-table td {
       border: 1px solid #ddd;
@@ -220,6 +228,7 @@
       nav button {
         font-size: 13px;
         padding: 8px;
+        max-width: unset;
       }
       h1 {
         font-size: 20px;
@@ -243,195 +252,6 @@
   </style>
 </head>
 <body>
-  <header>
-    <div id="profile-container">
-      <img id="profile-pic" src="placeholder-profile.jpg" alt="Club Profile Picture">
-      <span id="edit-pic">✏️</span>
-    </div>
-    <h1>Irindiro Football Club</h1>
-    <p id="mission">To provide quality talents throughout the society.</p>
-  </header>
-
-  <nav>
-    <button onclick="showTab('registration')" class="active">Registration</button>
-    <button onclick="showTab('players')">Players</button>
-    <button onclick="showTab('contributions')">Contributions</button>
-  </nav>
-
-  <section id="registration" class="active">
-    <h2>Player Registration</h2>
-    <form onsubmit="registerPlayer(event)">
-      <input type="text" id="playerName" placeholder="Enter Player Name" required>
-      <input type="number" id="amount" placeholder="Enter Amount (KES)" min="50" required>
-      <button type="submit">Register</button>
-    </form>
-    <p id="regMessage"></p>
-  </section>
-
-  <section id="players">
-    <h2>Players</h2>
-    <div class="category">
-      <h3>All Players</h3>
-      <ul class="player-list" id="all-players"></ul>
-    </div>
-    <button onclick="addNewPlayer()" style="background:#0052d4;color:white;">➕ Add Player</button>
-  </section>
-
-  <section id="contributions">
-    <h2>Contributions</h2>
-    <form onsubmit="addContribution(event)">
-      <input type="text" id="contribName" placeholder="Player Name" required>
-      <input type="number" id="contribAmount" placeholder="Contribution Amount (KES)" required>
-      <button type="submit">Add Contribution</button>
-    </form>
-    <button onclick="resetContributions()" style="background-color:red;color:white;">Reset Contributions</button>
-    <table id="contributions-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Contribution</th>
-          <th>Total</th>
-          <th>Paid</th>
-        </tr>
-      </thead>
-      <tbody id="contrib-body"></tbody>
-      <tfoot>
-        <tr id="total-row">
-          <td colspan="2">Total Contributions</td>
-          <td id="total-contrib">0</td>
-          <td id="total-all">0</td>
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
-  </section>
-
-  <button id="whatsapp-btn" onclick="joinWhatsApp()" title="Join WhatsApp Group">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-    WhatsApp Group
-  </button>
-
-  <footer>
-    <p>&copy; 2025 Irindiro Football Club. Developed by Colloh.</p>
-  </footer>
-
-  <script>
-    let registeredPlayers = JSON.parse(localStorage.getItem('registeredPlayers')) || {};
-    let contributions = JSON.parse(localStorage.getItem('contributions')) || [];
-    let players = JSON.parse(localStorage.getItem('players')) || [
-      'LAMAXON MUGURI','AMOS KIMATHI','DICKSON','MWENDA LEWIS','IAN NKURIU','ROYFORD',
-      'KIM NKUNKU','MUTEMBEI','MWENDA','MUTHURI COLLINS','MURITHI MUMU','PIUS',
-      'EVANS MUTWIRI','EZRON MWIRIGI','MURITHI','LEWIS MUTUA'
-    ];
-
-    function showTab(tabName) {
-      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
-      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(tabName).classList.add('active');
-      event.target.classList.add('active');
-      if (tabName === 'players') renderPlayers();
-      if (tabName === 'contributions') renderContributions();
-    }
-
-    function registerPlayer(event) {
-      event.preventDefault();
-      const name = document.getElementById('playerName').value.trim().toUpperCase();
-      const amount = parseInt(document.getElementById('amount').value);
-      if (amount < 50) {
-        document.getElementById('regMessage').textContent = 'Amount must be KES 50 or above!';
-        return;
-      }
-      registeredPlayers[name] = true;
-      localStorage.setItem('registeredPlayers', JSON.stringify(registeredPlayers));
-      document.getElementById('regMessage').textContent = `${name} registered successfully!`;
-      document.getElementById('playerName').value = '';
-      document.getElementById('amount').value = '';
-      setTimeout(() => document.getElementById('regMessage').textContent = '', 3000);
-    }
-
-    function renderPlayers() {
-      const ul = document.getElementById('all-players');
-      ul.innerHTML = '';
-      players.forEach((name, index) => {
-        const li = document.createElement('li');
-        li.className = 'player-item';
-        li.innerHTML = `
-          <span>${index + 1}. ${name}</span>
-          <span class="${registeredPlayers[name] ? 'registered' : ''}">✓</span>
-        `;
-        ul.appendChild(li);
-      });
-    }
-
-    function addNewPlayer() {
-      const newName = prompt("Enter new player's name:");
-      if (newName) {
-        players.push(newName.trim().toUpperCase());
-        localStorage.setItem('players', JSON.stringify(players));
-        renderPlayers();
-      }
-    }
-
-    function addContribution(event) {
-      event.preventDefault();
-      const name = document.getElementById('contribName').value.trim().toUpperCase();
-      const amount = parseInt(document.getElementById('contribAmount').value);
-      let contrib = contributions.find(c => c.name === name);
-      if (!contrib) {
-        contrib = { name, contrib: 0, total: 0, paid: false, paidAmount: 0 };
-        contributions.push(contrib);
-      }
-      contrib.contrib += amount;
-      contrib.total += amount;
-      contrib.paid = true;
-      contrib.paidAmount = amount;
-      localStorage.setItem('contributions', JSON.stringify(contributions));
-      document.getElementById('contribName').value = '';
-      document.getElementById('contribAmount').value = '';
-      renderContributions();
-    }
-
-    function renderContributions() {
-      const tbody = document.getElementById('contrib-body');
-      tbody.innerHTML = '';
-      let totalContrib = 0;
-      let totalAll = 0;
-      contributions.forEach((c, index) => {
-        totalContrib += c.contrib;
-        totalAll += c.total;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${c.name}</td>
-          <td>${c.contrib}</td>
-          <td>${c.total}</td>
-          <td class="${c.paid ? 'paid' : ''}">${c.paid ? '✅' : 'No'}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-      document.getElementById('total-contrib').textContent = totalContrib;
-      document.getElementById('total-all').textContent = totalAll;
-    }
-
-    function resetContributions() {
-      if (confirm("Are you sure you want to reset all contributions?")) {
-        contributions = [];
-        localStorage.setItem('contributions', JSON.stringify(contributions));
-        renderContributions();
-      }
-    }
-
-    function joinWhatsApp() {
-      window.open('https://chat.whatsapp.com/Foof1HTeEWBBJJCU6nSVEM', '_blank');
-    }
-
-    document.getElementById('edit-pic').addEventListener('click', () => {
-      alert("Feature to upload/change profile picture coming soon!");
-    });
-
-    renderPlayers();
-    renderContributions();
-  </script>
+  <!-- Your same body content goes here -->
 </body>
 </html>

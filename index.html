@@ -6,7 +6,7 @@
   <title>Irindiro Football Club</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Times New Roman', Times, serif;
       margin: 0;
       padding: 0;
       background-color: #f4f4f4;
@@ -146,9 +146,18 @@
       color: white;
       text-align: center;
       padding: 10px;
-      position: relative; /* changed from fixed */
+      position: relative;
       width: 100%;
       margin-top: 20px;
+    }
+    #mission {
+      font-size: 16px;
+      margin-top: 5px;
+      font-style: italic;
+    }
+    #total-row td {
+      font-weight: bold;
+      background-color: #f9f9f9;
     }
   </style>
 </head>
@@ -159,6 +168,7 @@
       <span id="edit-pic">✏️</span>
     </div>
     <h1>Irindiro Football Club</h1>
+    <p id="mission">To provide quality talents throughout the society.</p>
   </header>
 
   <nav>
@@ -216,6 +226,14 @@
         </tr>
       </thead>
       <tbody id="contrib-body"></tbody>
+      <tfoot>
+        <tr id="total-row">
+          <td colspan="2">Total Contributions</td>
+          <td id="total-contrib">0</td>
+          <td id="total-all">0</td>
+          <td></td>
+        </tr>
+      </tfoot>
     </table>
   </section>
 
@@ -299,17 +317,23 @@
     function renderContributions() {
       const tbody = document.getElementById('contrib-body');
       tbody.innerHTML = '';
+      let totalContrib = 0;
+      let totalAll = 0;
       contributions.forEach((c, index) => {
+        totalContrib += c.contrib;
+        totalAll += c.total;
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${index + 1}</td>
           <td>${c.name}</td>
           <td>${c.contrib}</td>
           <td>${c.total}</td>
-          <td class="${c.paid ? 'paid' : ''}">${c.paid ? `KES ${c.paidAmount}` : 'No'}</td>
+          <td class="${c.paid ? 'paid' : ''}">${c.paid ? '✅' : 'No'}</td>
         `;
         tbody.appendChild(tr);
       });
+      document.getElementById('total-contrib').textContent = totalContrib;
+      document.getElementById('total-all').textContent = totalAll;
     }
 
     function resetContributions() {

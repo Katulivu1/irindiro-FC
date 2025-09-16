@@ -35,6 +35,7 @@
     button:hover { background-color: #1e7e34; }
     .player-item { background: #fdfdfd; margin: 6px 0; padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #0052d4; font-size: 14px; }
     .registered { color: green; font-weight: bold; }
+    .delete-btn { background: red; color: white; border: none; border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 12px; margin-left: 10px; }
     #contributions-table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; font-size: 14px; }
     #contributions-table th, #contributions-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     #contributions-table th { background: #0052d4; color: white; }
@@ -90,6 +91,7 @@
       <ul class="player-list" id="all-players"></ul>
     </div>
     <button onclick="addNewPlayer()" style="background:#0052d4;color:white;">➕ Add Player</button>
+    <button onclick="resetPlayers()" style="background:red;color:white;">🗑️ Reset Players</button>
   </section>
 
   <section id="contributions">
@@ -121,7 +123,6 @@
       </tfoot>
     </table>
 
-    <!-- Payment Info -->
     <div class="payment-info">
       <p><strong>Payment Details:</strong></p>
       <p>Name: <strong>LAMAXON MUGURI</strong></p>
@@ -140,7 +141,6 @@
   </footer>
 
   <script>
-    // 1. Initialize Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD0dTsQ91pdMFLoEpiF3R30kQWSqCe8waY",
       authDomain: "irindiro-fc.firebaseapp.com",
@@ -152,25 +152,20 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. Tab switching (fixed)
     function showTab(tabName, el) {
       document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-
       document.getElementById(tabName).classList.add('active');
       if (el) el.classList.add('active');
-
       if (tabName === 'players') renderPlayers();
       if (tabName === 'contributions') renderContributions();
-      if (tabName === 'registration') renderPlayersForRegistration();
     }
 
-    // 3. Registration in Firestore (fixed to use .add instead of overwrite)
+    // Register player -> add to registrations + ensure in players
     function registerPlayer(event) {
       event.preventDefault();
       const name = document.getElementById('playerName').value.trim().toUpperCase();
       const amount = parseInt(document.getElementById('amount').value);
-
       if (amount < 50) {
         document.getElementById('regMessage').textContent = 'Amount must be KES 50 or above!';
         return;
@@ -183,6 +178,13 @@
         registered: true,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
+        // also add to players if not already
+        db.collection("players").where("name", "==", name).get().then(snap => {
+          if (snap.empty) {
+            db.collection("players").add({ name });
+          }
+        });
+
         document.getElementById('regMessage').textContent = `${name} registered successfully!`;
         document.getElementById('playerName').value = '';
         document.getElementById('amount').value = '';
@@ -194,34 +196,25 @@
       });
     }
 
-    // 4. Render players
     function renderPlayers() {
       const ul = document.getElementById('all-players');
       ul.innerHTML = '';
-      db.collection("players").orderBy("name").onSnapshot(playerSnap => {
-        db.collection("registrations").get().then(regSnap => {
-          const registeredMap = {};
-          regSnap.forEach(doc => registeredMap[doc.id] = doc.data().registered);
-
-          ul.innerHTML = '';
-          let i = 1;
-          playerSnap.forEach(doc => {
-            const name = doc.data().name;
-            const li = document.createElement('li');
-            li.className = 'player-item';
-            li.innerHTML = `
-              <span>${i++}. ${name}</span>
-              <span class="${registeredMap[name] ? 'registered' : ''}">✓</span>
-            `;
-            ul.appendChild(li);
-          });
+      db.collection("players").orderBy("name").onSnapshot(snapshot => {
+        ul.innerHTML = '';
+        let i = 1;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const li = document.createElement('li');
+          li.className = 'player-item';
+          li.innerHTML = `
+            <span>${i++}. ${data.name}</span>
+            <button class="delete-btn" onclick="deletePlayer('${doc.id}')">Delete</button>
+          `;
+          ul.appendChild(li);
         });
       });
     }
 
-    function renderPlayersForRegistration() { }
-
-    // 5. Add new player
     function addNewPlayer() {
       const newName = prompt("Enter new player's name:");
       if (newName) {
@@ -231,14 +224,27 @@
       }
     }
 
-    // 6. Add contribution (fixed)
+    function deletePlayer(id) {
+      if (confirm("Delete this player?")) {
+        db.collection("players").doc(id).delete();
+      }
+    }
+
+    function resetPlayers() {
+      if (confirm("Are you sure you want to reset all players?")) {
+        db.collection("players").get().then(snapshot => {
+          const batch = db.batch();
+          snapshot.forEach(doc => batch.delete(doc.ref));
+          batch.commit().then(renderPlayers);
+        });
+      }
+    }
+
     function addContribution(event) {
       event.preventDefault();
       const name = document.getElementById('contribName').value.trim().toUpperCase();
       const amount = parseInt(document.getElementById('contribAmount').value);
-
       if (!name || isNaN(amount) || amount < 1) return;
-
       const contribDoc = db.collection("contributions").doc(name);
       contribDoc.get().then(docSnapshot => {
         if (docSnapshot.exists) {
@@ -266,7 +272,6 @@
       });
     }
 
-    // 7. Render contributions
     function renderContributions() {
       const tbody = document.getElementById('contrib-body');
       tbody.innerHTML = '';
@@ -294,7 +299,6 @@
       });
     }
 
-    // 8. Reset contributions
     function resetContributions() {
       if (confirm("Are you sure you want to reset all contributions?")) {
         db.collection("contributions").get().then(snapshot => {
@@ -311,14 +315,15 @@
         alert("Number copied: " + number);
       });
     }
+
     function joinWhatsApp() {
       window.open('https://chat.whatsapp.com/Foof1HTeEWBBJJCU6nSVEM', '_blank');
     }
+
     document.getElementById('edit-pic').addEventListener('click', () => {
       alert("Feature to upload/change profile picture coming soon!");
     });
 
-    // 9. Initial render
     renderPlayers();
     renderContributions();
   </script>

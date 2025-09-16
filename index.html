@@ -7,7 +7,6 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Font Awesome for Icons -->
@@ -58,12 +57,6 @@
     #whatsapp-btn { position: fixed; bottom: 70px; right: 15px; background: #25D366; color: white; border: none; padding: 10px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; transform: translateY(0); }
     #whatsapp-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
     #whatsapp-btn img { width: 20px; height: 20px; }
-    /* Login Section */
-    #login-section { display: flex; justify-content: center; align-items: center; height: 100vh; }
-    #login-section form { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
-    #login-section input { margin-bottom: 15px; }
-    #login-section button { width: 100%; }
-    #auth-error { color: red; font-size: 14px; text-align: center; }
     /* Modal Styles */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
     .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; }
@@ -90,22 +83,11 @@
       .dropdown-container button { margin-left: 0; margin-top: 10px; width: 100%; }
       .modal-content { padding: 15px; }
       .modal-btn { padding: 8px 16px; font-size: 13px; }
-      #login-section form { width: 90%; }
     }
   </style>
 </head>
 <body>
-  <section id="login-section">
-    <form id="login-form">
-      <h2>Login to Irindiro FC</h2>
-      <input type="email" id="email" placeholder="Enter Email" required>
-      <input type="password" id="password" placeholder="Enter Password" required>
-      <button type="submit">Login</button>
-      <p id="auth-error"></p>
-    </form>
-  </section>
-
-  <header id="main-header" style="display: none;">
+  <header>
     <div id="profile-container">
       <img id="profile-pic" src="placeholder-profile.jpg" alt="Club Profile Picture">
       <span id="edit-pic">✏️</span>
@@ -114,13 +96,13 @@
     <p id="mission">To provide quality talents throughout the society.</p>
   </header>
 
-  <nav id="main-nav" style="display: none;">
+  <nav>
     <button onclick="showTab('registration', this)" class="active">Registration</button>
     <button onclick="showTab('players', this)">Players</button>
     <button onclick="showTab('contributions', this)">Contributions</button>
   </nav>
 
-  <section id="registration">
+  <section id="registration" class="active">
     <h2>Player Registration</h2>
     <form onsubmit="registerPlayer(event)">
       <input type="text" id="playerName" placeholder="Enter Player Name" required>
@@ -200,7 +182,7 @@
     </div>
   </div>
 
-  <footer id="main-footer" style="display: none;">
+  <footer>
     <p>&copy; <span id="year">2025</span> Irindiro Football Club. Developed by Colloh.</p>
   </footer>
 
@@ -215,41 +197,6 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const auth = firebase.auth();
-
-    // Authentication
-    function showMainContent() {
-      document.getElementById('login-section').style.display = 'none';
-      document.getElementById('main-header').style.display = 'block';
-      document.getElementById('main-nav').style.display = 'flex';
-      document.getElementById('main-footer').style.display = 'block';
-      document.getElementById('registration').classList.add('active');
-      renderPlayers();
-      renderContributions();
-    }
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        showMainContent();
-      } else {
-        document.getElementById('login-section').style.display = 'flex';
-        document.getElementById('main-header').style.display = 'none';
-        document.getElementById('main-nav').style.display = 'none';
-        document.getElementById('main-footer').style.display = 'none';
-        document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
-      }
-    });
-
-    document.getElementById('login-form').addEventListener('submit', event => {
-      event.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.signInWithEmailAndPassword(email, password).then(() => {
-        document.getElementById('auth-error').textContent = '';
-      }).catch(err => {
-        document.getElementById('auth-error').textContent = err.message;
-      });
-    });
 
     function showTab(tabName, el) {
       document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
@@ -464,6 +411,9 @@
 
     // Dynamic year for footer
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    renderPlayers();
+    renderContributions();
   </script>
 </body>
 </html>

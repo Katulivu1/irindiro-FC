@@ -122,7 +122,7 @@
     <button onclick="showResetModal()" style="background:#dc2626;color:white;"><i class="fas fa-trash"></i> Reset Players</button>
     <div class="dropdown-container">
       <select id="delete-players-dropdown" multiple>
-        <option value="" disabled>Select players to delete</option>
+        <option value="" disabled selected>-- Select players to delete --</option>
       </select>
       <button onclick="showDeleteModal()"><i class="fas fa-trash"></i> Delete Selected</button>
     </div>
@@ -203,8 +203,6 @@
       document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
       document.getElementById(tabName).classList.add('active');
       if (el) el.classList.add('active');
-      if (tabName === 'players') renderPlayers();
-      if (tabName === 'contributions') renderContributions();
     }
 
     // Register player
@@ -225,195 +223,134 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         db.collection("players").where("name", "==", name).get().then(snap => {
-          if (snap.empty) db.collection("players").add({ name });
+          if (snap.empty) {
+            db.collection("players").add({ name, total: amount });
+          } else {
+            snap.forEach(doc => db.collection("players").doc(doc.id).update({ total: firebase.firestore.FieldValue.increment(amount) }));
+          }
         });
-        document.getElementById('regMessage').textContent = `${name} registered successfully!`;
-        document.getElementById('playerName').value = '';
-        document.getElementById('amount').value = '';
-        setTimeout(() => document.getElementById('regMessage').textContent = '', 3000);
-        renderPlayers();
-      }).catch(err => {
-        console.error("Registration failed:", err);
-        alert("Error saving to Firestore. Check your rules.");
+        document.getElementById('regMessage').textContent = 'Player registered successfully!';
+        document.querySelector('form').reset();
       });
     }
 
-    // Render players without checkbox or delete button
-    function renderPlayers() {
-      const ul = document.getElementById('all-players');
-      const dropdown = document.getElementById('delete-players-dropdown');
-      dropdown.innerHTML = '<option value="" disabled>Select players to delete</option>';
-      db.collection("players").orderBy("name").onSnapshot(snapshot => {
-        ul.innerHTML = '';
-        let i = 1;
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const li = document.createElement('li');
-          li.className = 'player-item';
-          li.setAttribute('data-id', doc.id);
-          li.innerHTML = `${i++}. ${data.name}`;
-          ul.appendChild(li);
-          const option = document.createElement('option');
-          option.value = doc.id;
-          option.textContent = data.name;
-          dropdown.appendChild(option);
-        });
+    // Listen for players once
+    db.collection("players").orderBy("name").onSnapshot(snapshot => {
+      renderPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
+    function renderPlayers(players) {
+      const list = document.getElementById("all-players");
+      const dropdown = document.getElementById("delete-players-dropdown");
+      list.innerHTML = "";
+      dropdown.innerHTML = '<option value="" disabled selected hidden>-- Select players to delete --</option>';
+
+      players.forEach(player => {
+        const li = document.createElement("li");
+        li.className = "player-item";
+        li.textContent = player.name + " - KES " + player.total;
+        list.appendChild(li);
+
+        const option = document.createElement("option");
+        option.value = player.id;
+        option.textContent = player.name;
+        dropdown.appendChild(option);
       });
     }
 
     function addNewPlayer() {
-      const newName = prompt("Enter new player's name:");
-      if (newName) db.collection("players").add({ name: newName.trim().toUpperCase() });
+      const name = prompt("Enter new player name:");
+      if (!name) return;
+      db.collection("players").add({ name: name.trim().toUpperCase(), total: 0 });
     }
 
     function showDeleteModal() {
-      const dropdown = document.getElementById('delete-players-dropdown');
-      const selectedIds = Array.from(dropdown.selectedOptions).map(option => option.value);
-      if (selectedIds.length === 0) {
-        alert("No players selected.");
+      const selected = Array.from(document.getElementById("delete-players-dropdown").selectedOptions).map(opt => opt.value).filter(v => v);
+      if (selected.length === 0) {
+        alert("Select players to delete first.");
         return;
       }
-      const modal = document.getElementById('delete-modal');
-      const message = document.getElementById('modal-message');
-      message.textContent = `Are you sure you want to delete ${selectedIds.length} selected player(s)?`;
-      modal.style.display = 'flex';
-      document.getElementById('confirm-delete').onclick = () => deleteSelectedPlayers(selectedIds);
-    }
+      document.getElementById("modal-message").textContent = "Are you sure you want to delete " + selected.length + " player(s)?";
+      const modal = document.getElementById("delete-modal");
+      modal.style.display = "flex";
 
-    function deleteSelectedPlayers(selectedIds) {
-      const ul = document.getElementById('all-players');
-      selectedIds.forEach(id => {
-        const li = ul.querySelector(`.player-item[data-id="${id}"]`);
-        if (li) li.classList.add('deleting');
+      const confirmBtn = document.getElementById("confirm-delete");
+      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+      document.getElementById("confirm-delete").addEventListener("click", () => {
+        selected.forEach(id => db.collection("players").doc(id).delete());
+        closeModal();
       });
-      setTimeout(() => {
-        const batch = db.batch();
-        selectedIds.forEach(id => {
-          batch.delete(db.collection("players").doc(id));
-        });
-        batch.commit().then(() => {
-          closeModal();
-          renderPlayers();
-        });
-      }, 500);
     }
 
     function showResetModal() {
-      const modal = document.getElementById('delete-modal');
-      const message = document.getElementById('modal-message');
-      message.textContent = 'Are you sure you want to reset all players?';
-      modal.style.display = 'flex';
-      document.getElementById('confirm-delete').onclick = () => resetPlayers();
-    }
+      document.getElementById("modal-message").textContent = "Are you sure you want to reset all players?";
+      const modal = document.getElementById("delete-modal");
+      modal.style.display = "flex";
 
-    function resetPlayers() {
-      const ul = document.getElementById('all-players');
-      ul.querySelectorAll('.player-item').forEach(li => li.classList.add('deleting'));
-      setTimeout(() => {
-        db.collection("players").get().then(snapshot => {
-          const batch = db.batch();
-          snapshot.forEach(doc => batch.delete(doc.ref));
-          batch.commit().then(() => {
-            closeModal();
-            renderPlayers();
-          });
-        });
-      }, 500);
+      const confirmBtn = document.getElementById("confirm-delete");
+      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+      document.getElementById("confirm-delete").addEventListener("click", () => {
+        db.collection("players").get().then(snap => snap.forEach(doc => doc.ref.delete()));
+        closeModal();
+      });
     }
 
     function closeModal() {
-      document.getElementById('delete-modal').style.display = 'none';
+      document.getElementById("delete-modal").style.display = "none";
     }
 
     // Contributions
     function addContribution(event) {
       event.preventDefault();
-      const name = document.getElementById('contribName').value.trim().toUpperCase();
-      const amount = parseInt(document.getElementById('contribAmount').value);
-      if (!name || isNaN(amount) || amount < 1) return;
-      const contribDoc = db.collection("contributions").doc(name);
-      contribDoc.get().then(docSnapshot => {
-        if (docSnapshot.exists) {
-          const data = docSnapshot.data();
-          contribDoc.update({
-            contrib: (data.contrib || 0) + amount,
-            total: (data.total || 0) + amount,
-            paid: true,
-            paidAmount: amount
-          });
-        } else {
-          contribDoc.set({
-            name,
-            contrib: amount,
-            total: amount,
-            paid: true,
-            paidAmount: amount
-          });
-        }
-        document.getElementById('contribName').value = '';
-        document.getElementById('contribAmount').value = '';
-      }).catch(err => {
-        console.error("Contribution failed:", err);
-        alert("Error saving to Firestore. Check your rules.");
-      });
+      const name = document.getElementById("contribName").value.trim().toUpperCase();
+      const amount = parseInt(document.getElementById("contribAmount").value);
+      if (!name || amount <= 0) return;
+
+      db.collection("contributions").add({ name, amount, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+      document.getElementById("contribName").value = "";
+      document.getElementById("contribAmount").value = "";
     }
 
-    function renderContributions() {
-      const tbody = document.getElementById('contrib-body');
-      db.collection("contributions").orderBy("name").onSnapshot(snapshot => {
-        let totalContrib = 0;
-        let totalAll = 0;
-        tbody.innerHTML = '';
-        let index = 1;
-        snapshot.forEach(doc => {
-          const c = doc.data();
-          totalContrib += c.contrib || 0;
-          totalAll += c.total || 0;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${index++}</td>
-            <td>${c.name}</td>
-            <td>${c.contrib || 0}</td>
-            <td>${c.total || 0}</td>
-            <td class="${c.paid ? 'paid' : ''}">${c.paid ? '✅' : 'No'}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-        document.getElementById('total-contrib').textContent = totalContrib;
-        document.getElementById('total-all').textContent = totalAll;
+    db.collection("contributions").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+      renderContributions(snapshot.docs.map(doc => doc.data()));
+    });
+
+    function renderContributions(contributions) {
+      const tbody = document.getElementById("contrib-body");
+      tbody.innerHTML = "";
+      let total = 0;
+      contributions.forEach((c, i) => {
+        total += c.amount;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${c.name}</td>
+          <td>${c.amount}</td>
+          <td>${total}</td>
+          <td class="paid">✔️</td>
+        `;
+        tbody.appendChild(tr);
       });
+      document.getElementById("total-contrib").textContent = total;
+      document.getElementById("total-all").textContent = total;
     }
 
     function resetContributions() {
       if (confirm("Are you sure you want to reset all contributions?")) {
-        db.collection("contributions").get().then(snapshot => {
-          const batch = db.batch();
-          snapshot.forEach(doc => batch.delete(doc.ref));
-          batch.commit().then(renderContributions);
-        });
+        db.collection("contributions").get().then(snap => snap.forEach(doc => doc.ref.delete()));
       }
     }
 
     function copyNumber() {
-      const number = document.getElementById('payNumber').textContent;
-      navigator.clipboard.writeText(number).then(() => {
-        alert("Number copied: " + number);
-      });
+      const number = document.getElementById("payNumber").textContent;
+      navigator.clipboard.writeText(number).then(() => alert("Number copied: " + number));
     }
 
     function joinWhatsApp() {
-      window.open('https://chat.whatsapp.com/Foof1HTeEWBBJJCU6nSVEM', '_blank');
+      window.open("https://chat.whatsapp.com/invite/your-group-link", "_blank");
     }
 
-    document.getElementById('edit-pic').addEventListener('click', () => {
-      alert("Feature to upload/change profile picture coming soon!");
-    });
-
-    // Dynamic year for footer
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    renderPlayers();
-    renderContributions();
+    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>

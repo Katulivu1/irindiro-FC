@@ -68,9 +68,9 @@
   </header>
 
   <nav>
-    <button onclick="showTab('registration')" class="active">Registration</button>
-    <button onclick="showTab('players')">Players</button>
-    <button onclick="showTab('contributions')">Contributions</button>
+    <button onclick="showTab('registration', this)" class="active">Registration</button>
+    <button onclick="showTab('players', this)">Players</button>
+    <button onclick="showTab('contributions', this)">Contributions</button>
   </nav>
 
   <section id="registration" class="active">
@@ -140,7 +140,7 @@
   </footer>
 
   <script>
-    // 1. Initialize Firebase (with your actual config)
+    // 1. Initialize Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD0dTsQ91pdMFLoEpiF3R30kQWSqCe8waY",
       authDomain: "irindiro-fc.firebaseapp.com",
@@ -152,18 +152,20 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. Tab switching
-    function showTab(tabName) {
+    // 2. Tab switching (fixed)
+    function showTab(tabName, el) {
       document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+
       document.getElementById(tabName).classList.add('active');
-      event.target.classList.add('active');
+      if (el) el.classList.add('active');
+
       if (tabName === 'players') renderPlayers();
       if (tabName === 'contributions') renderContributions();
       if (tabName === 'registration') renderPlayersForRegistration();
     }
 
-    // 3. Registration in Firestore
+    // 3. Registration in Firestore (fixed to use .add instead of overwrite)
     function registerPlayer(event) {
       event.preventDefault();
       const name = document.getElementById('playerName').value.trim().toUpperCase();
@@ -175,8 +177,7 @@
       }
       if (!name) return;
 
-      // Store registration in "registrations" collection using player name as id
-      db.collection("registrations").doc(name).set({
+      db.collection("registrations").add({
         name,
         amount,
         registered: true,
@@ -186,11 +187,14 @@
         document.getElementById('playerName').value = '';
         document.getElementById('amount').value = '';
         setTimeout(() => document.getElementById('regMessage').textContent = '', 3000);
-        renderPlayers(); // update registration ticks
+        renderPlayers();
+      }).catch(err => {
+        console.error("Registration failed:", err);
+        alert("Error saving to Firestore. Check your rules.");
       });
     }
 
-    // 4. Render players from Firestore (real-time sync)
+    // 4. Render players
     function renderPlayers() {
       const ul = document.getElementById('all-players');
       ul.innerHTML = '';
@@ -215,12 +219,9 @@
       });
     }
 
-    // 5. Render players for registration autocomplete (optional for improvement)
-    function renderPlayersForRegistration() {
-      // Could be used to add autocomplete or listing for registration form
-    }
+    function renderPlayersForRegistration() { }
 
-    // 6. Add new player to Firestore
+    // 5. Add new player
     function addNewPlayer() {
       const newName = prompt("Enter new player's name:");
       if (newName) {
@@ -230,7 +231,7 @@
       }
     }
 
-    // 7. Add contribution to Firestore
+    // 6. Add contribution (fixed)
     function addContribution(event) {
       event.preventDefault();
       const name = document.getElementById('contribName').value.trim().toUpperCase();
@@ -259,10 +260,13 @@
         }
         document.getElementById('contribName').value = '';
         document.getElementById('contribAmount').value = '';
+      }).catch(err => {
+        console.error("Contribution failed:", err);
+        alert("Error saving to Firestore. Check your rules.");
       });
     }
 
-    // 8. Render contributions from Firestore (real-time)
+    // 7. Render contributions
     function renderContributions() {
       const tbody = document.getElementById('contrib-body');
       tbody.innerHTML = '';
@@ -290,7 +294,7 @@
       });
     }
 
-    // 9. Reset all contributions in Firestore
+    // 8. Reset contributions
     function resetContributions() {
       if (confirm("Are you sure you want to reset all contributions?")) {
         db.collection("contributions").get().then(snapshot => {
@@ -314,7 +318,7 @@
       alert("Feature to upload/change profile picture coming soon!");
     });
 
-    // 10. Initial render
+    // 9. Initial render
     renderPlayers();
     renderContributions();
   </script>

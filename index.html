@@ -7,6 +7,7 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Font Awesome for Icons -->
@@ -35,9 +36,9 @@
     button { background-color: #28a745; color: white; cursor: pointer; border: none; transition: all 0.2s ease; transform: translateY(0); }
     button:hover { background-color: #1e7e34; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     .player-item { background: #fdfdfd; margin: 10px 0; padding: 12px 16px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #10b981; font-size: 14px; font-weight: 400; line-height: 1.5; gap: 12px; }
+    .player-item.deleting { animation: fadeOut 0.5s ease forwards; }
+    @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
     .registered { color: green; font-weight: bold; }
-    .delete-btn { background: red; color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 13px; margin-left: 10px; transition: all 0.2s ease; transform: translateY(0); }
-    .delete-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     /* Dropdown Styles */
     .dropdown-container { position: relative; display: inline-block; margin-top: 10px; }
     #delete-players-dropdown { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; background: #fff; cursor: pointer; width: 200px; }
@@ -57,6 +58,24 @@
     #whatsapp-btn { position: fixed; bottom: 70px; right: 15px; background: #25D366; color: white; border: none; padding: 10px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; transform: translateY(0); }
     #whatsapp-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
     #whatsapp-btn img { width: 20px; height: 20px; }
+    /* Login Section */
+    #login-section { display: flex; justify-content: center; align-items: center; height: 100vh; }
+    #login-section form { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
+    #login-section input { margin-bottom: 15px; }
+    #login-section button { width: 100%; }
+    #auth-error { color: red; font-size: 14px; text-align: center; }
+    /* Modal Styles */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+    .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-content h3 { font-size: 20px; color: #1e40af; margin-bottom: 15px; }
+    .modal-content p { font-size: 15px; color: #374151; margin-bottom: 20px; }
+    .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+    .modal-btn { padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; transition: all 0.2s ease; transform: translateY(0); }
+    .modal-btn.cancel { background: #e5e7eb; color: #374151; }
+    .modal-btn.cancel:hover { background: #d1d5db; transform: translateY(-1px); }
+    .modal-btn.confirm { background: #dc2626; color: white; }
+    .modal-btn.confirm:hover { background: #b91c1c; transform: translateY(-1px); }
     footer { background: #222; color: white; text-align: center; padding: 15px; width: 100%; margin-top: auto; font-size: 13px; font-weight: 300; }
     @media (max-width: 600px) {
       nav button { font-size: 13px; padding: 8px; }
@@ -69,11 +88,24 @@
       .dropdown-container { width: 100%; }
       #delete-players-dropdown { width: 100%; }
       .dropdown-container button { margin-left: 0; margin-top: 10px; width: 100%; }
+      .modal-content { padding: 15px; }
+      .modal-btn { padding: 8px 16px; font-size: 13px; }
+      #login-section form { width: 90%; }
     }
   </style>
 </head>
 <body>
-  <header>
+  <section id="login-section">
+    <form id="login-form">
+      <h2>Login to Irindiro FC</h2>
+      <input type="email" id="email" placeholder="Enter Email" required>
+      <input type="password" id="password" placeholder="Enter Password" required>
+      <button type="submit">Login</button>
+      <p id="auth-error"></p>
+    </form>
+  </section>
+
+  <header id="main-header" style="display: none;">
     <div id="profile-container">
       <img id="profile-pic" src="placeholder-profile.jpg" alt="Club Profile Picture">
       <span id="edit-pic">✏️</span>
@@ -82,13 +114,13 @@
     <p id="mission">To provide quality talents throughout the society.</p>
   </header>
 
-  <nav>
+  <nav id="main-nav" style="display: none;">
     <button onclick="showTab('registration', this)" class="active">Registration</button>
     <button onclick="showTab('players', this)">Players</button>
     <button onclick="showTab('contributions', this)">Contributions</button>
   </nav>
 
-  <section id="registration" class="active">
+  <section id="registration">
     <h2>Player Registration</h2>
     <form onsubmit="registerPlayer(event)">
       <input type="text" id="playerName" placeholder="Enter Player Name" required>
@@ -105,12 +137,12 @@
       <ul class="player-list" id="all-players"></ul>
     </div>
     <button onclick="addNewPlayer()" style="background:#1e40af;color:white;"><i class="fas fa-plus"></i> Add Player</button>
-    <button onclick="resetPlayers()" style="background:#dc2626;color:white;"><i class="fas fa-trash"></i> Reset Players</button>
+    <button onclick="showResetModal()" style="background:#dc2626;color:white;"><i class="fas fa-trash"></i> Reset Players</button>
     <div class="dropdown-container">
       <select id="delete-players-dropdown" multiple>
         <option value="" disabled>Select players to delete</option>
       </select>
-      <button onclick="deleteSelectedPlayers()"><i class="fas fa-trash"></i> Delete Selected</button>
+      <button onclick="showDeleteModal()"><i class="fas fa-trash"></i> Delete Selected</button>
     </div>
   </section>
 
@@ -156,7 +188,19 @@
     WhatsApp Group
   </button>
 
-  <footer>
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content">
+      <h3>Confirm Deletion</h3>
+      <p id="modal-message">Are you sure?</p>
+      <div class="modal-buttons">
+        <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn confirm" id="confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <footer id="main-footer" style="display: none;">
     <p>&copy; <span id="year">2025</span> Irindiro Football Club. Developed by Colloh.</p>
   </footer>
 
@@ -171,6 +215,41 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Authentication
+    function showMainContent() {
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('main-header').style.display = 'block';
+      document.getElementById('main-nav').style.display = 'flex';
+      document.getElementById('main-footer').style.display = 'block';
+      document.getElementById('registration').classList.add('active');
+      renderPlayers();
+      renderContributions();
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        showMainContent();
+      } else {
+        document.getElementById('login-section').style.display = 'flex';
+        document.getElementById('main-header').style.display = 'none';
+        document.getElementById('main-nav').style.display = 'none';
+        document.getElementById('main-footer').style.display = 'none';
+        document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+      }
+    });
+
+    document.getElementById('login-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, password).then(() => {
+        document.getElementById('auth-error').textContent = '';
+      }).catch(err => {
+        document.getElementById('auth-error').textContent = err.message;
+      });
+    });
 
     function showTab(tabName, el) {
       document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
@@ -216,7 +295,7 @@
     function renderPlayers() {
       const ul = document.getElementById('all-players');
       const dropdown = document.getElementById('delete-players-dropdown');
-      dropdown.innerHTML = '<option value="" disabled>Select players to delete</option>'; // Reset dropdown
+      dropdown.innerHTML = '<option value="" disabled>Select players to delete</option>';
       db.collection("players").orderBy("name").onSnapshot(snapshot => {
         ul.innerHTML = '';
         let i = 1;
@@ -224,9 +303,9 @@
           const data = doc.data();
           const li = document.createElement('li');
           li.className = 'player-item';
-          li.innerHTML = `${i++}. ${data.name}`; // Only show number and name
+          li.setAttribute('data-id', doc.id);
+          li.innerHTML = `${i++}. ${data.name}`;
           ul.appendChild(li);
-          // Add to dropdown
           const option = document.createElement('option');
           option.value = doc.id;
           option.textContent = data.name;
@@ -240,36 +319,63 @@
       if (newName) db.collection("players").add({ name: newName.trim().toUpperCase() });
     }
 
-    function deletePlayer(id) {
-      if (confirm("Delete this player?")) db.collection("players").doc(id).delete();
-    }
-
-    function deleteSelectedPlayers() {
+    function showDeleteModal() {
       const dropdown = document.getElementById('delete-players-dropdown');
       const selectedIds = Array.from(dropdown.selectedOptions).map(option => option.value);
       if (selectedIds.length === 0) {
         alert("No players selected.");
         return;
       }
-      if (confirm(`Delete ${selectedIds.length} selected player(s)?`)) {
+      const modal = document.getElementById('delete-modal');
+      const message = document.getElementById('modal-message');
+      message.textContent = `Are you sure you want to delete ${selectedIds.length} selected player(s)?`;
+      modal.style.display = 'flex';
+      document.getElementById('confirm-delete').onclick = () => deleteSelectedPlayers(selectedIds);
+    }
+
+    function deleteSelectedPlayers(selectedIds) {
+      const ul = document.getElementById('all-players');
+      selectedIds.forEach(id => {
+        const li = ul.querySelector(`.player-item[data-id="${id}"]`);
+        if (li) li.classList.add('deleting');
+      });
+      setTimeout(() => {
         const batch = db.batch();
         selectedIds.forEach(id => {
           batch.delete(db.collection("players").doc(id));
         });
         batch.commit().then(() => {
+          closeModal();
           renderPlayers();
         });
-      }
+      }, 500);
+    }
+
+    function showResetModal() {
+      const modal = document.getElementById('delete-modal');
+      const message = document.getElementById('modal-message');
+      message.textContent = 'Are you sure you want to reset all players?';
+      modal.style.display = 'flex';
+      document.getElementById('confirm-delete').onclick = () => resetPlayers();
     }
 
     function resetPlayers() {
-      if (confirm("Are you sure you want to reset all players?")) {
+      const ul = document.getElementById('all-players');
+      ul.querySelectorAll('.player-item').forEach(li => li.classList.add('deleting'));
+      setTimeout(() => {
         db.collection("players").get().then(snapshot => {
           const batch = db.batch();
           snapshot.forEach(doc => batch.delete(doc.ref));
-          batch.commit().then(renderPlayers);
+          batch.commit().then(() => {
+            closeModal();
+            renderPlayers();
+          });
         });
-      }
+      }, 500);
+    }
+
+    function closeModal() {
+      document.getElementById('delete-modal').style.display = 'none';
     }
 
     // Contributions
@@ -358,9 +464,6 @@
 
     // Dynamic year for footer
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    renderPlayers();
-    renderContributions();
   </script>
 </body>
 </html>

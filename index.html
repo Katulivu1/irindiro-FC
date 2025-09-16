@@ -9,13 +9,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0; padding: 0;
-      background: linear-gradient(to right, #f0f4ff, #e6f0fa);
-      color: #333;
-      display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden;
-    }
+    body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0;
+      background: linear-gradient(to right, #f0f4ff, #e6f0fa); color: #333;
+      display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
     header { background: linear-gradient(90deg, #0052d4, #4364f7, #6fb1fc); color: white; padding: 25px 15px; text-align: center; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     #profile-container { position: relative; display: inline-block; }
     #profile-pic { width: 95px; height: 95px; border-radius: 50%; border: 3px solid #fff; margin: 0 auto 8px; display: block; background-color: #ddd; }
@@ -36,6 +32,8 @@
     .player-item { background: #fdfdfd; margin: 6px 0; padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #0052d4; font-size: 14px; }
     .registered { color: green; font-weight: bold; }
     .delete-btn { background: red; color: white; border: none; border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 12px; margin-left: 10px; }
+    .select-checkbox { margin-right: 10px; }
+    #delete-selected-btn { background: red; color: white; margin-top: 10px; display: block; }
     #contributions-table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; font-size: 14px; }
     #contributions-table th, #contributions-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     #contributions-table th { background: #0052d4; color: white; }
@@ -92,6 +90,7 @@
     </div>
     <button onclick="addNewPlayer()" style="background:#0052d4;color:white;">➕ Add Player</button>
     <button onclick="resetPlayers()" style="background:red;color:white;">🗑️ Reset Players</button>
+    <button id="delete-selected-btn" onclick="deleteSelectedPlayers()">🗑️ Delete Selected</button>
   </section>
 
   <section id="contributions">
@@ -161,7 +160,7 @@
       if (tabName === 'contributions') renderContributions();
     }
 
-    // Register player -> add to registrations + ensure in players
+    // Register player
     function registerPlayer(event) {
       event.preventDefault();
       const name = document.getElementById('playerName').value.trim().toUpperCase();
@@ -178,13 +177,9 @@
         registered: true,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
-        // also add to players if not already
         db.collection("players").where("name", "==", name).get().then(snap => {
-          if (snap.empty) {
-            db.collection("players").add({ name });
-          }
+          if (snap.empty) db.collection("players").add({ name });
         });
-
         document.getElementById('regMessage').textContent = `${name} registered successfully!`;
         document.getElementById('playerName').value = '';
         document.getElementById('amount').value = '';
@@ -196,9 +191,9 @@
       });
     }
 
+    // Render players with checkbox + delete button
     function renderPlayers() {
       const ul = document.getElementById('all-players');
-      ul.innerHTML = '';
       db.collection("players").orderBy("name").onSnapshot(snapshot => {
         ul.innerHTML = '';
         let i = 1;
@@ -207,8 +202,11 @@
           const li = document.createElement('li');
           li.className = 'player-item';
           li.innerHTML = `
-            <span>${i++}. ${data.name}</span>
-            <button class="delete-btn" onclick="deletePlayer('${doc.id}')">Delete</button>
+            <span>
+              <input type="checkbox" class="select-checkbox" data-id="${doc.id}">
+              ${i++}. ${data.name}
+            </span>
+            <button class="delete-btn" onclick="deletePlayer('${doc.id}')">🗑️</button>
           `;
           ul.appendChild(li);
         });
@@ -217,16 +215,26 @@
 
     function addNewPlayer() {
       const newName = prompt("Enter new player's name:");
-      if (newName) {
-        db.collection("players").add({
-          name: newName.trim().toUpperCase()
-        });
-      }
+      if (newName) db.collection("players").add({ name: newName.trim().toUpperCase() });
     }
 
     function deletePlayer(id) {
-      if (confirm("Delete this player?")) {
-        db.collection("players").doc(id).delete();
+      if (confirm("Delete this player?")) db.collection("players").doc(id).delete();
+    }
+
+    function deleteSelectedPlayers() {
+      const checkboxes = document.querySelectorAll('.select-checkbox:checked');
+      if (checkboxes.length === 0) {
+        alert("No players selected.");
+        return;
+      }
+      if (confirm(`Delete ${checkboxes.length} selected player(s)?`)) {
+        const batch = db.batch();
+        checkboxes.forEach(cb => {
+          const id = cb.getAttribute('data-id');
+          batch.delete(db.collection("players").doc(id));
+        });
+        batch.commit().then(renderPlayers);
       }
     }
 
@@ -240,6 +248,7 @@
       }
     }
 
+    // Contributions
     function addContribution(event) {
       event.preventDefault();
       const name = document.getElementById('contribName').value.trim().toUpperCase();
@@ -274,7 +283,6 @@
 
     function renderContributions() {
       const tbody = document.getElementById('contrib-body');
-      tbody.innerHTML = '';
       db.collection("contributions").orderBy("name").onSnapshot(snapshot => {
         let totalContrib = 0;
         let totalAll = 0;

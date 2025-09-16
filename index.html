@@ -7,69 +7,45 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome for Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; }
-    body { font-family: 'Poppins', sans-serif; font-weight: 400; line-height: 1.6; margin: 0; padding: 0;
+    body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0;
       background: linear-gradient(to right, #f0f4ff, #e6f0fa); color: #333;
       display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
-    header { background: linear-gradient(90deg, #004080, #0052d4, #1e40af); color: white; padding: 25px 15px; text-align: center; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    header { background: linear-gradient(90deg, #0052d4, #4364f7, #6fb1fc); color: white; padding: 25px 15px; text-align: center; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     #profile-container { position: relative; display: inline-block; }
     #profile-pic { width: 95px; height: 95px; border-radius: 50%; border: 3px solid #fff; margin: 0 auto 8px; display: block; background-color: #ddd; }
-    #edit-pic { position: absolute; bottom: 12px; right: 12px; background: #10b981; color: white; border-radius: 50%; padding: 5px; cursor: pointer; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-    h1 { margin: 8px 0; font-size: 28px; font-weight: 600; }
-    #mission { font-size: 15px; font-weight: 300; margin-top: 5px; font-style: italic; opacity: 0.95; }
+    #edit-pic { position: absolute; bottom: 12px; right: 12px; background: #ffb703; color: black; border-radius: 50%; padding: 5px; cursor: pointer; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    h1 { margin: 5px 0; font-size: 24px; }
+    #mission { font-size: 14px; margin-top: 5px; font-style: italic; opacity: 0.9; }
     nav { display: flex; justify-content: center; flex-wrap: wrap; background: #222; padding: 10px 5px; }
-    nav button { flex: 1; min-width: 100px; background: #1e40af; color: white; border: none; padding: 10px 12px; margin: 5px; cursor: pointer; border-radius: 20px; font-size: 14px; transition: all 0.2s ease; transform: translateY(0); }
-    nav button:hover { background: #1e3a8a; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-    nav button.active { background: #10b981; color: white; font-weight: bold; }
-    section { display: none; padding: 25px; max-width: 900px; margin: 20px auto; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); width: 95%; }
+    nav button { flex: 1; min-width: 100px; background: #0052d4; color: white; border: none; padding: 10px 12px; margin: 5px; cursor: pointer; border-radius: 20px; font-size: 14px; transition: 0.3s; }
+    nav button:hover { background: #003c9e; }
+    nav button.active { background: #ffb703; color: #222; font-weight: bold; }
+    section { display: none; padding: 15px; max-width: 850px; margin: 15px auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 95%; }
     section.active { display: block; }
-    h2 { color: #1e40af; margin-bottom: 16px; font-size: 22px; font-weight: 500; }
-    h3 { font-size: 18px; font-weight: 500; color: #374151; margin-bottom: 12px; }
-    form { display: flex; flex-wrap: wrap; gap: 15px; background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-    input, button { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; flex: 1; min-width: 120px; }
-    button { background-color: #28a745; color: white; cursor: pointer; border: none; transition: all 0.2s ease; transform: translateY(0); }
-    button:hover { background-color: #1e7e34; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-    .player-item { background: #fdfdfd; margin: 10px 0; padding: 12px 16px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #10b981; font-size: 14px; font-weight: 400; line-height: 1.5; gap: 12px; }
-    .player-item.deleting { animation: fadeOut 0.5s ease forwards; }
-    @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
+    h2 { color: #0052d4; margin-bottom: 12px; font-size: 20px; }
+    form { display: flex; flex-wrap: wrap; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+    input, button { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; flex: 1; min-width: 120px; }
+    button { background-color: #28a745; color: white; cursor: pointer; border: none; transition: 0.3s; }
+    button:hover { background-color: #1e7e34; }
+    .player-item { background: #fdfdfd; margin: 6px 0; padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #0052d4; font-size: 14px; }
     .registered { color: green; font-weight: bold; }
-    /* Dropdown Styles */
-    .dropdown-container { position: relative; display: inline-block; margin-top: 10px; }
-    #delete-players-dropdown { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; background: #fff; cursor: pointer; width: 200px; }
-    #delete-players-dropdown:focus { outline: none; border-color: #1e40af; }
-    #delete-players-dropdown option { padding: 10px; }
-    .dropdown-container button { background: #dc2626; color: white; margin-left: 10px; padding: 12px 16px; display: inline-flex; align-items: center; gap: 4px; }
-    .dropdown-container button:hover { background: #b91c1c; }
+    .delete-btn { background: red; color: white; border: none; border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 12px; margin-left: 10px; }
+    .select-checkbox { margin-right: 10px; }
+    #delete-selected-btn { background: red; color: white; margin-top: 10px; display: block; }
     #contributions-table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; font-size: 14px; }
-    #contributions-table th, #contributions-table td { border: 1px solid #ddd; padding: 12px 10px; text-align: left; font-weight: 400; line-height: 1.5; }
-    #contributions-table th { background: #1e40af; color: white; }
+    #contributions-table th, #contributions-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    #contributions-table th { background: #0052d4; color: white; }
     .paid { color: green; font-weight: bold; }
     #total-row td { font-weight: bold; background: #f1f1f1; }
-    .payment-info { margin-top: 20px; padding: 16px; background: #f9f9f9; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; word-break: break-word; }
-    .payment-info strong { color: #1e40af; }
-    .copy-btn { background: #1e40af; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 6px; transition: all 0.2s ease; transform: translateY(0); }
-    .copy-btn:hover { background: #1e3a8a; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-    #whatsapp-btn { position: fixed; bottom: 70px; right: 15px; background: #25D366; color: white; border: none; padding: 10px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; transform: translateY(0); }
-    #whatsapp-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+    .payment-info { margin-top: 15px; padding: 12px; background: #f9f9f9; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; word-break: break-word; }
+    .payment-info strong { color: #0052d4; }
+    .copy-btn { background: #0052d4; color: #fff; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 13px; margin-top: 6px; }
+    .copy-btn:hover { background: #003c9e; }
+    #whatsapp-btn { position: fixed; bottom: 70px; right: 15px; background: #25D366; color: white; border: none; padding: 10px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; gap: 6px; }
     #whatsapp-btn img { width: 20px; height: 20px; }
-    /* Modal Styles */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-    .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; }
-    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-content h3 { font-size: 20px; color: #1e40af; margin-bottom: 15px; }
-    .modal-content p { font-size: 15px; color: #374151; margin-bottom: 20px; }
-    .modal-buttons { display: flex; gap: 10px; justify-content: center; }
-    .modal-btn { padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; transition: all 0.2s ease; transform: translateY(0); }
-    .modal-btn.cancel { background: #e5e7eb; color: #374151; }
-    .modal-btn.cancel:hover { background: #d1d5db; transform: translateY(-1px); }
-    .modal-btn.confirm { background: #dc2626; color: white; }
-    .modal-btn.confirm:hover { background: #b91c1c; transform: translateY(-1px); }
-    footer { background: #222; color: white; text-align: center; padding: 15px; width: 100%; margin-top: auto; font-size: 13px; font-weight: 300; }
+    footer { background: #222; color: white; text-align: center; padding: 10px; width: 100%; margin-top: auto; font-size: 13px; }
     @media (max-width: 600px) {
       nav button { font-size: 13px; padding: 8px; }
       h1 { font-size: 20px; }
@@ -77,12 +53,6 @@
       input, button { flex: 100%; min-width: unset; }
       .player-item { font-size: 13px; padding: 7px 10px; }
       #contributions-table th, #contributions-table td { font-size: 12px; padding: 6px; }
-      section { padding: 20px 15px; }
-      .dropdown-container { width: 100%; }
-      #delete-players-dropdown { width: 100%; }
-      .dropdown-container button { margin-left: 0; margin-top: 10px; width: 100%; }
-      .modal-content { padding: 15px; }
-      .modal-btn { padding: 8px 16px; font-size: 13px; }
     }
   </style>
 </head>
@@ -118,14 +88,9 @@
       <h3>All Players</h3>
       <ul class="player-list" id="all-players"></ul>
     </div>
-    <button onclick="addNewPlayer()" style="background:#1e40af;color:white;"><i class="fas fa-plus"></i> Add Player</button>
-    <button onclick="showResetModal()" style="background:#dc2626;color:white;"><i class="fas fa-trash"></i> Reset Players</button>
-    <div class="dropdown-container">
-      <select id="delete-players-dropdown" multiple>
-        <option value="" disabled selected>-- Select players to delete --</option>
-      </select>
-      <button onclick="showDeleteModal()"><i class="fas fa-trash"></i> Delete Selected</button>
-    </div>
+    <button onclick="addNewPlayer()" style="background:#0052d4;color:white;">➕ Add Player</button>
+    <button onclick="resetPlayers()" style="background:red;color:white;">🗑️ Reset Players</button>
+    <button id="delete-selected-btn" onclick="deleteSelectedPlayers()">🗑️ Delete Selected</button>
   </section>
 
   <section id="contributions">
@@ -135,7 +100,7 @@
       <input type="number" id="contribAmount" placeholder="Contribution Amount (KES)" required>
       <button type="submit">Add Contribution</button>
     </form>
-    <button onclick="resetContributions()" style="background-color:#dc2626;color:white;"><i class="fas fa-trash"></i> Reset Contributions</button>
+    <button onclick="resetContributions()" style="background-color:red;color:white;">Reset Contributions</button>
     <table id="contributions-table">
       <thead>
         <tr>
@@ -170,20 +135,8 @@
     WhatsApp Group
   </button>
 
-  <!-- Delete Confirmation Modal -->
-  <div id="delete-modal" class="modal">
-    <div class="modal-content">
-      <h3>Confirm Deletion</h3>
-      <p id="modal-message">Are you sure?</p>
-      <div class="modal-buttons">
-        <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
-        <button class="modal-btn confirm" id="confirm-delete">Delete</button>
-      </div>
-    </div>
-  </div>
-
   <footer>
-    <p>&copy; <span id="year">2025</span> Irindiro Football Club. Developed by Colloh.</p>
+    <p>&copy; 2025 Irindiro Football Club. Developed by Colloh.</p>
   </footer>
 
   <script>
@@ -203,6 +156,8 @@
       document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
       document.getElementById(tabName).classList.add('active');
       if (el) el.classList.add('active');
+      if (tabName === 'players') renderPlayers();
+      if (tabName === 'contributions') renderContributions();
     }
 
     // Register player
@@ -223,134 +178,162 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         db.collection("players").where("name", "==", name).get().then(snap => {
-          if (snap.empty) {
-            db.collection("players").add({ name, total: amount });
-          } else {
-            snap.forEach(doc => db.collection("players").doc(doc.id).update({ total: firebase.firestore.FieldValue.increment(amount) }));
-          }
+          if (snap.empty) db.collection("players").add({ name });
         });
-        document.getElementById('regMessage').textContent = 'Player registered successfully!';
-        document.querySelector('form').reset();
+        document.getElementById('regMessage').textContent = `${name} registered successfully!`;
+        document.getElementById('playerName').value = '';
+        document.getElementById('amount').value = '';
+        setTimeout(() => document.getElementById('regMessage').textContent = '', 3000);
+        renderPlayers();
+      }).catch(err => {
+        console.error("Registration failed:", err);
+        alert("Error saving to Firestore. Check your rules.");
       });
     }
 
-    // Listen for players once
-    db.collection("players").orderBy("name").onSnapshot(snapshot => {
-      renderPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-
-    function renderPlayers(players) {
-      const list = document.getElementById("all-players");
-      const dropdown = document.getElementById("delete-players-dropdown");
-      list.innerHTML = "";
-      dropdown.innerHTML = '<option value="" disabled selected hidden>-- Select players to delete --</option>';
-
-      players.forEach(player => {
-        const li = document.createElement("li");
-        li.className = "player-item";
-        li.textContent = player.name + " - KES " + player.total;
-        list.appendChild(li);
-
-        const option = document.createElement("option");
-        option.value = player.id;
-        option.textContent = player.name;
-        dropdown.appendChild(option);
+    // Render players with checkbox + delete button
+    function renderPlayers() {
+      const ul = document.getElementById('all-players');
+      db.collection("players").orderBy("name").onSnapshot(snapshot => {
+        ul.innerHTML = '';
+        let i = 1;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const li = document.createElement('li');
+          li.className = 'player-item';
+          li.innerHTML = `
+            <span>
+              <input type="checkbox" class="select-checkbox" data-id="${doc.id}">
+              ${i++}. ${data.name}
+            </span>
+            <button class="delete-btn" onclick="deletePlayer('${doc.id}')">🗑️</button>
+          `;
+          ul.appendChild(li);
+        });
       });
     }
 
     function addNewPlayer() {
-      const name = prompt("Enter new player name:");
-      if (!name) return;
-      db.collection("players").add({ name: name.trim().toUpperCase(), total: 0 });
+      const newName = prompt("Enter new player's name:");
+      if (newName) db.collection("players").add({ name: newName.trim().toUpperCase() });
     }
 
-    function showDeleteModal() {
-      const selected = Array.from(document.getElementById("delete-players-dropdown").selectedOptions).map(opt => opt.value).filter(v => v);
-      if (selected.length === 0) {
-        alert("Select players to delete first.");
+    function deletePlayer(id) {
+      if (confirm("Delete this player?")) db.collection("players").doc(id).delete();
+    }
+
+    function deleteSelectedPlayers() {
+      const checkboxes = document.querySelectorAll('.select-checkbox:checked');
+      if (checkboxes.length === 0) {
+        alert("No players selected.");
         return;
       }
-      document.getElementById("modal-message").textContent = "Are you sure you want to delete " + selected.length + " player(s)?";
-      const modal = document.getElementById("delete-modal");
-      modal.style.display = "flex";
-
-      const confirmBtn = document.getElementById("confirm-delete");
-      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
-      document.getElementById("confirm-delete").addEventListener("click", () => {
-        selected.forEach(id => db.collection("players").doc(id).delete());
-        closeModal();
-      });
+      if (confirm(`Delete ${checkboxes.length} selected player(s)?`)) {
+        const batch = db.batch();
+        checkboxes.forEach(cb => {
+          const id = cb.getAttribute('data-id');
+          batch.delete(db.collection("players").doc(id));
+        });
+        batch.commit().then(renderPlayers);
+      }
     }
 
-    function showResetModal() {
-      document.getElementById("modal-message").textContent = "Are you sure you want to reset all players?";
-      const modal = document.getElementById("delete-modal");
-      modal.style.display = "flex";
-
-      const confirmBtn = document.getElementById("confirm-delete");
-      confirmBtn.replaceWith(confirmBtn.cloneNode(true));
-      document.getElementById("confirm-delete").addEventListener("click", () => {
-        db.collection("players").get().then(snap => snap.forEach(doc => doc.ref.delete()));
-        closeModal();
-      });
-    }
-
-    function closeModal() {
-      document.getElementById("delete-modal").style.display = "none";
+    function resetPlayers() {
+      if (confirm("Are you sure you want to reset all players?")) {
+        db.collection("players").get().then(snapshot => {
+          const batch = db.batch();
+          snapshot.forEach(doc => batch.delete(doc.ref));
+          batch.commit().then(renderPlayers);
+        });
+      }
     }
 
     // Contributions
     function addContribution(event) {
       event.preventDefault();
-      const name = document.getElementById("contribName").value.trim().toUpperCase();
-      const amount = parseInt(document.getElementById("contribAmount").value);
-      if (!name || amount <= 0) return;
-
-      db.collection("contributions").add({ name, amount, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-      document.getElementById("contribName").value = "";
-      document.getElementById("contribAmount").value = "";
+      const name = document.getElementById('contribName').value.trim().toUpperCase();
+      const amount = parseInt(document.getElementById('contribAmount').value);
+      if (!name || isNaN(amount) || amount < 1) return;
+      const contribDoc = db.collection("contributions").doc(name);
+      contribDoc.get().then(docSnapshot => {
+        if (docSnapshot.exists) {
+          const data = docSnapshot.data();
+          contribDoc.update({
+            contrib: (data.contrib || 0) + amount,
+            total: (data.total || 0) + amount,
+            paid: true,
+            paidAmount: amount
+          });
+        } else {
+          contribDoc.set({
+            name,
+            contrib: amount,
+            total: amount,
+            paid: true,
+            paidAmount: amount
+          });
+        }
+        document.getElementById('contribName').value = '';
+        document.getElementById('contribAmount').value = '';
+      }).catch(err => {
+        console.error("Contribution failed:", err);
+        alert("Error saving to Firestore. Check your rules.");
+      });
     }
 
-    db.collection("contributions").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-      renderContributions(snapshot.docs.map(doc => doc.data()));
-    });
-
-    function renderContributions(contributions) {
-      const tbody = document.getElementById("contrib-body");
-      tbody.innerHTML = "";
-      let total = 0;
-      contributions.forEach((c, i) => {
-        total += c.amount;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${i+1}</td>
-          <td>${c.name}</td>
-          <td>${c.amount}</td>
-          <td>${total}</td>
-          <td class="paid">✔️</td>
-        `;
-        tbody.appendChild(tr);
+    function renderContributions() {
+      const tbody = document.getElementById('contrib-body');
+      db.collection("contributions").orderBy("name").onSnapshot(snapshot => {
+        let totalContrib = 0;
+        let totalAll = 0;
+        tbody.innerHTML = '';
+        let index = 1;
+        snapshot.forEach(doc => {
+          const c = doc.data();
+          totalContrib += c.contrib || 0;
+          totalAll += c.total || 0;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${index++}</td>
+            <td>${c.name}</td>
+            <td>${c.contrib || 0}</td>
+            <td>${c.total || 0}</td>
+            <td class="${c.paid ? 'paid' : ''}">${c.paid ? '✅' : 'No'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        document.getElementById('total-contrib').textContent = totalContrib;
+        document.getElementById('total-all').textContent = totalAll;
       });
-      document.getElementById("total-contrib").textContent = total;
-      document.getElementById("total-all").textContent = total;
     }
 
     function resetContributions() {
       if (confirm("Are you sure you want to reset all contributions?")) {
-        db.collection("contributions").get().then(snap => snap.forEach(doc => doc.ref.delete()));
+        db.collection("contributions").get().then(snapshot => {
+          const batch = db.batch();
+          snapshot.forEach(doc => batch.delete(doc.ref));
+          batch.commit().then(renderContributions);
+        });
       }
     }
 
     function copyNumber() {
-      const number = document.getElementById("payNumber").textContent;
-      navigator.clipboard.writeText(number).then(() => alert("Number copied: " + number));
+      const number = document.getElementById('payNumber').textContent;
+      navigator.clipboard.writeText(number).then(() => {
+        alert("Number copied: " + number);
+      });
     }
 
     function joinWhatsApp() {
-      window.open("https://chat.whatsapp.com/invite/your-group-link", "_blank");
+      window.open('https://chat.whatsapp.com/Foof1HTeEWBBJJCU6nSVEM', '_blank');
     }
 
-    document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById('edit-pic').addEventListener('click', () => {
+      alert("Feature to upload/change profile picture coming soon!");
+    });
+
+    renderPlayers();
+    renderContributions();
   </script>
 </body>
 </html>

@@ -1,43 +1,79 @@
 body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(120deg, #006400, #32CD32);
-  color: white;
+  font-family: 'Times New Roman', Times, serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+  color: #333;
+}
+
+header {
   text-align: center;
   padding: 20px;
+  background: #222;
+  color: white;
 }
 
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+header img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  object-fit: cover;
 }
 
-/* Tabs styling */
-.tabs {
-  margin-bottom: 20px;
+nav {
+  display: flex;
+  justify-content: center;
+  background: #444;
 }
 
-.tab-button {
+nav button {
   padding: 10px 20px;
-  margin: 5px;
   border: none;
-  border-radius: 5px;
+  background: #444;
+  color: white;
   cursor: pointer;
-  background: gold;
-  color: black;
-  font-weight: bold;
+  font-family: 'Times New Roman', Times, serif;
 }
 
-.tab-button.active {
-  background: orange;
+nav button:hover {
+  background: #666;
 }
 
-.tab-content {
+.tab {
   display: none;
-  background: rgba(0, 0, 0, 0.3);
   padding: 20px;
-  border-radius: 8px;
 }
 
-.tab-content.active {
+.active {
   display: block;
+}
+
+input, button {
+  padding: 8px;
+  margin: 5px 0;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #333;
+  padding: 8px;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  background: #222;
+  color: white;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 14px;
 }

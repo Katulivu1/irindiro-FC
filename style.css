@@ -1,0 +1,26 @@
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(120deg, #006400, #32CD32);
+  color: white;
+  text-align: center;
+  padding: 50px;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: gold;
+  color: black;
+  font-weight: bold;
+}
+
+button:hover {
+  background: orange;
+}

@@ -4,39 +4,94 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Irindiro FC</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f8ff; }
+    header { text-align: center; padding: 20px; background: #0052d4; color: white; }
+    header img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; }
+    h1 { margin: 0; font-size: 22px; }
+
+    .tabs { display: flex; justify-content: center; background: #222; }
+    .tab-button {
+      flex: 1; padding: 12px; border: none; cursor: pointer; 
+      background: #444; color: white; font-weight: bold; transition: 0.3s;
+    }
+    .tab-button.active { background: #ffb703; color: black; }
+    .tab-content { display: none; padding: 20px; max-width: 800px; margin: auto; background: white; margin-top: 10px; border-radius: 8px; }
+    .tab-content.active { display: block; }
+
+    form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+    input, button { padding: 10px; border-radius: 6px; border: 1px solid #ccc; flex: 1; }
+    button { background: #0052d4; color: white; border: none; cursor: pointer; }
+    button:hover { background: #003c9e; }
+
+    ul { list-style: none; padding: 0; }
+    li { padding: 8px; border-bottom: 1px solid #ddd; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #0052d4; color: white; }
+    #total-row { font-weight: bold; background: #f1f1f1; }
+  </style>
 </head>
 <body>
-  <h1>⚽ Irindiro FC</h1>
+  <header>
+    <img src="placeholder-profile.jpg" alt="Club Profile Picture">
+    <h1>IRINDIRO FOOTBALL CLUB</h1>
+  </header>
 
   <!-- Navigation Tabs -->
   <div class="tabs">
     <button class="tab-button active" data-tab="about">About</button>
+    <button class="tab-button" data-tab="registration">Registration</button>
     <button class="tab-button" data-tab="players">Players</button>
     <button class="tab-button" data-tab="contributions">Contributions</button>
   </div>
 
-  <!-- Tab Content -->
+  <!-- About -->
   <div id="about" class="tab-content active">
     <h2>About the Club</h2>
-    <div id="readme-content">
-      <p>Loading club history...</p>
-    </div>
+    <div id="readme-content"><p>Loading club history...</p></div>
   </div>
 
+  <!-- Registration -->
+  <div id="registration" class="tab-content">
+    <h2>Player Registration</h2>
+    <form id="registration-form">
+      <input type="text" id="playerName" placeholder="Enter Player Name" required>
+      <input type="number" id="amount" placeholder="Enter Amount (KES ≥ 50)" required>
+      <button type="submit">Register</button>
+    </form>
+    <p id="regMessage"></p>
+  </div>
+
+  <!-- Players -->
   <div id="players" class="tab-content">
-    <h2>Our Players</h2>
-    <ul>
-      <li>Player 1 – Striker</li>
-      <li>Player 2 – Midfielder</li>
-      <li>Player 3 – Goalkeeper</li>
-      <!-- Add more players here -->
-    </ul>
+    <h2>Players List</h2>
+    <ul id="player-list"></ul>
   </div>
 
+  <!-- Contributions -->
   <div id="contributions" class="tab-content">
     <h2>Contributions</h2>
-    <p>Support Irindiro FC by contributing to our journey. Together we win! 💚</p>
+    <form id="contrib-form">
+      <input type="text" id="contribName" placeholder="Player Name" required>
+      <input type="number" id="contribAmount" placeholder="Contribution Amount (KES ≥ 20)" required>
+      <button type="submit">Add Contribution</button>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>Contribution</th>
+        </tr>
+      </thead>
+      <tbody id="contrib-body"></tbody>
+      <tfoot>
+        <tr id="total-row">
+          <td colspan="2">Total</td>
+          <td id="total-contrib">0</td>
+        </tr>
+      </tfoot>
+    </table>
   </div>
 
   <script src="script.js"></script>

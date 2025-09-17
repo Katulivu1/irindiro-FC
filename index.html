@@ -8,10 +8,36 @@
 </head>
 <body>
   <h1>⚽ Irindiro FC</h1>
-  <p>Founded in 1980 – Proud winners of the Governors Cup 🏆</p>
 
-  <button id="cheerBtn">Cheer the Club 🎉</button>
-  <p id="message"></p>
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-button active" data-tab="about">About</button>
+    <button class="tab-button" data-tab="players">Players</button>
+    <button class="tab-button" data-tab="contributions">Contributions</button>
+  </div>
+
+  <!-- Tab Content -->
+  <div id="about" class="tab-content active">
+    <h2>About the Club</h2>
+    <div id="readme-content">
+      <p>Loading club history...</p>
+    </div>
+  </div>
+
+  <div id="players" class="tab-content">
+    <h2>Our Players</h2>
+    <ul>
+      <li>Player 1 – Striker</li>
+      <li>Player 2 – Midfielder</li>
+      <li>Player 3 – Goalkeeper</li>
+      <!-- Add more players here -->
+    </ul>
+  </div>
+
+  <div id="contributions" class="tab-content">
+    <h2>Contributions</h2>
+    <p>Support Irindiro FC by contributing to our journey. Together we win! 💚</p>
+  </div>
 
   <script src="script.js"></script>
 </body>

@@ -1,90 +1,40 @@
-// Tab functionality
-const buttons = document.querySelectorAll(".tab-button");
-const contents = document.querySelectorAll(".tab-content");
-
-buttons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    buttons.forEach(b => b.classList.remove("active"));
-    contents.forEach(c => c.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
-  });
-});
-
-// Load README.md into About tab
-fetch("https://raw.githubusercontent.com/Katulivu1/irindiro-FC/main/README.md")
-  .then(response => response.text())
-  .then(markdown => {
-    document.getElementById("readme-content").innerText = markdown;
-  })
-  .catch(() => {
-    document.getElementById("readme-content").innerText = "⚠️ Failed to load club history.";
-  });
-
-// Players & Contributions Storage (local only for now)
-let players = [];
-let contributions = [];
-
-// Registration Form
-document.getElementById("registration-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const name = document.getElementById("playerName").value.trim().toUpperCase();
-  const amount = parseInt(document.getElementById("amount").value);
-
-  if (amount < 50) {
-    document.getElementById("regMessage").textContent = "❌ Amount must be KES 50 or above!";
-    return;
-  }
-
-  players.push({ name, amount });
-  renderPlayers();
-
-  document.getElementById("regMessage").textContent = `✅ ${name} registered successfully!`;
-  document.getElementById("playerName").value = "";
-  document.getElementById("amount").value = "";
-});
-
-// Render Players
-function renderPlayers() {
-  const ul = document.getElementById("player-list");
-  ul.innerHTML = "";
-  players.forEach((p, i) => {
-    const li = document.createElement("li");
-    li.textContent = `${i + 1}. ${p.name} – Paid: ${p.amount}`;
-    ul.appendChild(li);
-  });
+function openTab(tabId) {
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
 }
 
-// Contributions Form
-document.getElementById("contrib-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const name = document.getElementById("contribName").value.trim().toUpperCase();
-  const amount = parseInt(document.getElementById("contribAmount").value);
+function registerPlayer() {
+  let name = document.getElementById("playerName").value.trim();
+  let amount = parseInt(document.getElementById("playerAmount").value);
 
-  if (amount < 20) {
-    alert("❌ Contribution must be at least KES 20!");
+  if (name === "" || isNaN(amount) || amount <= 50) {
+    alert("Enter valid name and amount greater than 50.");
     return;
   }
 
-  contributions.push({ name, amount });
-  renderContributions();
+  let row = `<tr><td>${name}</td><td>${amount}</td></tr>`;
+  document.getElementById("playerList").innerHTML += row;
+
+  document.getElementById("playerName").value = "";
+  document.getElementById("playerAmount").value = "";
+}
+
+let total = 0;
+function addContribution() {
+  let name = document.getElementById("contribName").value.trim();
+  let amount = parseInt(document.getElementById("contribAmount").value);
+
+  if (name === "" || isNaN(amount) || amount <= 20) {
+    alert("Enter valid name and amount greater than 20.");
+    return;
+  }
+
+  let row = `<tr><td>${name}</td><td>${amount}</td></tr>`;
+  document.getElementById("contribList").innerHTML += row;
+
+  total += amount;
+  document.getElementById("total").innerText = total;
 
   document.getElementById("contribName").value = "";
   document.getElementById("contribAmount").value = "";
-});
-
-// Render Contributions
-function renderContributions() {
-  const tbody = document.getElementById("contrib-body");
-  tbody.innerHTML = "";
-  let total = 0;
-
-  contributions.forEach((c, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${i + 1}</td><td>${c.name}</td><td>${c.amount}</td>`;
-    tbody.appendChild(tr);
-    total += c.amount;
-  });
-
-  document.getElementById("total-contrib").textContent = total;
 }

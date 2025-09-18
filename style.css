@@ -80,3 +80,67 @@ footer {
   width: 100%;
   font-size: 14px;
 }
+
+/* Gallery Styles */
+.gallery-container {
+  position: relative;
+  max-width: 100%;
+  margin: 20px 0;
+  background: #f0fdf4;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gallery-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.gallery-track {
+  display: flex;
+  transition: transform 0.3s ease-in-out;
+  width: 400%; /* 4 images * 100% */
+}
+
+.gallery-slide {
+  min-width: 25%; /* Each slide takes 1/4 of the track */
+  height: 300px;
+  object-fit: cover;
+}
+
+.gallery-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(16, 185, 129, 0.8); /* Semi-transparent green */
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  z-index: 10;
+  border-radius: 50%;
+}
+
+.gallery-btn:hover {
+  background: #059669;
+}
+
+.prev {
+  left: 10px;
+}
+
+.next {
+  right: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .gallery-slide {
+    height: 200px;
+  }
+  .gallery-btn {
+    padding: 8px;
+    font-size: 16px;
+  }
+}

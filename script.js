@@ -39,6 +39,16 @@ function addContribution() {
   document.getElementById("contribAmount").value = "";
 }
 
+// Copy M-Pesa Number
+function copyMpesaNumber() {
+  const number = document.getElementById("mpesaNumber").textContent;
+  navigator.clipboard.writeText(number).then(() => {
+    alert("M-Pesa number copied to clipboard!");
+  }).catch(() => {
+    alert("Failed to copy number. Please try manually.");
+  });
+}
+
 // Gallery Functionality
 let currentSlide = 0;
 const slidesCount = 4; // Number of squad images

@@ -41,7 +41,7 @@ function addContribution() {
 
 // Gallery Functionality
 let currentSlide = 0;
-const slidesCount = 4; // Number of images
+const slidesCount = 4; // Number of squad images
 
 function changeSlide(direction) {
   currentSlide += direction;

@@ -23,7 +23,7 @@
   <div id="about" class="tab active">
     <h2>About IRINDIRO FC</h2>
     <p>Founded in 1980, Irindiro Football Club has grown into one of the strongest community clubs in the region. 
-    The club has proudly won multiple local tournaments, including the Governor’s Cup and other district championships, 
+    The club has proudly won multiple local tournaments, including the Governor's Cup and other district championships, 
     bringing pride and unity to the community.</p>
 
     <!-- Image Gallery -->
@@ -43,7 +43,7 @@
 
   <div id="registration" class="tab">
     <h2>Player Registration</h2>
-    <p>Enter player name and contribution (must be 50 or greater):</p>
+    <p>Enter player name and contribution:</p>
     <input type="text" id="playerName" placeholder="Player Name">
     <input type="number" id="playerAmount" placeholder="Amount">
     <button onclick="registerPlayer()">Register</button>
@@ -62,10 +62,18 @@
 
   <div id="contributions" class="tab">
     <h2>Club Contributions</h2>
-    <p>Enter contributor name and amount (must be 20 or more):</p>
+    <p>Enter contributor name and amount:</p>
     <input type="text" id="contribName" placeholder="Name">
     <input type="number" id="contribAmount" placeholder="Amount">
     <button onclick="addContribution()">Contribute</button>
+
+    <!-- M-Pesa Payment Details -->
+    <div class="mpesa-details">
+      <h3>Make Payment via M-Pesa</h3>
+      <p><strong>Name:</strong> LAMAXON MUGURI</p>
+      <p><strong>Number:</strong> <span id="mpesaNumber">0708884863</span>
+        <button onclick="copyMpesaNumber()" class="copy-btn">Copy</button></p>
+    </div>
 
     <h3>Contribution List</h3>
     <table>

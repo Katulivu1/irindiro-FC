@@ -38,3 +38,56 @@ function addContribution() {
   document.getElementById("contribName").value = "";
   document.getElementById("contribAmount").value = "";
 }
+
+// Gallery Functionality
+let currentSlide = 0;
+const slidesCount = 4; // Number of images
+
+function changeSlide(direction) {
+  currentSlide += direction;
+  if (currentSlide >= slidesCount) currentSlide = 0;
+  if (currentSlide < 0) currentSlide = slidesCount - 1;
+  updateGallery();
+}
+
+function updateGallery() {
+  const track = document.getElementById('galleryTrack');
+  track.style.transform = `translateX(-${currentSlide * 25}%)`;
+}
+
+// Swipe Detection
+let startX = 0;
+let endX = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+  const wrapper = document.querySelector('.gallery-wrapper');
+  if (wrapper) {
+    wrapper.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+    });
+
+    wrapper.addEventListener('touchmove', e => {
+      e.preventDefault(); // Prevent scrolling during swipe
+    });
+
+    wrapper.addEventListener('touchend', e => {
+      endX = e.changedTouches[0].clientX;
+      handleSwipe();
+    });
+  }
+});
+
+function handleSwipe() {
+  const threshold = 50; // Minimum swipe distance
+  const diff = startX - endX;
+
+  if (Math.abs(diff) > threshold) {
+    if (diff > 0) {
+      // Swipe left - next slide
+      changeSlide(1);
+    } else {
+      // Swipe right - prev slide
+      changeSlide(-1);
+    }
+  }
+}

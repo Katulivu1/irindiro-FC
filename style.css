@@ -189,6 +189,37 @@ footer {
   right: 15px;
 }
 
+/* M-Pesa Details Styling */
+.mpesa-details {
+  margin: 15px 0;
+  padding: 15px;
+  background: #e6fffa; /* Light teal for distinction */
+  border-radius: 8px;
+  border: 1px solid #10b981;
+}
+
+.mpesa-details h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #047857;
+}
+
+.mpesa-details p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.mpesa-details .copy-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  margin-left: 10px;
+  background: #047857; /* Darker green for copy button */
+}
+
+.mpesa-details .copy-btn:hover {
+  background: #059669;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .gallery-slide {
@@ -209,5 +240,13 @@ footer {
   
   .gallery-track {
     gap: 5px;
+  }
+  
+  .mpesa-details {
+    padding: 10px;
+  }
+  
+  .mpesa-details .copy-btn {
+    margin-top: 5px;
   }
 }

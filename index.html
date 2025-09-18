@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IRINDIRO FOOTBALL CLUB</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-
   <header>
     <!-- Profile picture placeholder -->
     <img src="images/profile.jpg" alt="Club Profile Picture">
@@ -54,9 +55,12 @@
         <tr>
           <th>Player Name</th>
           <th>Amount</th>
+          <th>Date</th>
         </tr>
       </thead>
-      <tbody id="playerList"></tbody>
+      <tbody id="playerList">
+        <tr><td colspan="3">Loading players...</td></tr>
+      </tbody>
     </table>
   </div>
 
@@ -81,16 +85,19 @@
         <tr>
           <th>Name</th>
           <th>Amount</th>
+          <th>Date</th>
         </tr>
       </thead>
-      <tbody id="contribList"></tbody>
+      <tbody id="contribList">
+        <tr><td colspan="3">Loading contributions...</td></tr>
+      </tbody>
     </table>
 
     <h3>Total Contributions: <span id="total">0</span></h3>
   </div>
 
   <footer>
-    © 2025 IRINDIRO FOOTBALL CLUB | Developed by Collin Technologies
+    © 2025 IRINDIRO FOOTBALL CLUB | Powered by Supabase
   </footer>
 
   <script src="script.js"></script>
